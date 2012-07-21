@@ -8,6 +8,11 @@ import java.net.URL
 
 object Application extends Controller {
 
+  def getFileNoArgs(username : String, filename : String) =
+    this.getFile(username, filename, null)
+
+  def getRepoNoArgs(username : String) =
+    this.getRepo(username, "zip")
   /**
    * Fetches the most basic case -- a single primary file (.emacs, .vimrc)
    * @param username Github username
@@ -15,10 +20,10 @@ object Application extends Controller {
    * @param restfulArgs Forward slash delimited list of arguments from route
    * @return
    */
-  def getFile(username : String, filename : String, restfulArgs : String) = {
+  def getFile(username: String, filename: String, restfulArgs: String) = {
     // Sanitize input for security
-    def sanitize(n : String) =
-       n.replaceAllLiterally("/", "")
+    def sanitize(n: String) =
+      n.replaceAllLiterally("/", "")
         .replaceAllLiterally("?", "")
 
     val fetcher = FetcherFactory.getFetcher(filename)
@@ -30,21 +35,19 @@ object Application extends Controller {
     }
 
     fetcher.fetchContent(sanitize(username), sanitize(filename), argList) match {
-      case Some(content) => Ok(content)
-      case None => NotFound("File not found.")
+      case Some(content) => Action { Ok(content) }
+      case None => Action { NotFound("File not found.") }
     }
   }
 
-  def getRepo(username : String, compressionType : String) : Result = {
+  def getRepo(username: String, compressionType: String) = {
     val fetcher = FetcherFactory.getFetcher("archive")
 
     fetcher.fetchRepo(username, compressionType) match {
-      case Some(conn) =>
-        SimpleResult(
-          header = ResponseHeader(200, Map(CONTENT_TYPE -> conn.getContentType)),
-          body = Enumerator(conn.getContent.toString)
-        )
-      case None => NotFound("Repository not found.")
+      case Some(archiveUrl) =>
+        Action { Redirect(archiveUrl) }
+
+      case None => Action { NotFound("Repository not found.") }
     }
 
   }

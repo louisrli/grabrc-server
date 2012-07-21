@@ -13,7 +13,7 @@ import play.api.mvc.Results.NotFound
 
 class ApplicationControllerSpec extends Specification with GithubTest {
   def defaultFetch (file : String) = {
-    Application.getFile(USERNAME, file, null)
+    Application.getFile(USERNAME, file, null)(FakeRequest())
   }
 
   "In the file route, the controller" should {
@@ -31,7 +31,7 @@ class ApplicationControllerSpec extends Specification with GithubTest {
     }
 
     "ignore redundant arguments" in {
-      val result = Application.getFile(USERNAME, ".vimrc", "foo/bar/yam/zee")
+      val result = Application.getFile(USERNAME, ".vimrc", "foo/bar/yam/zee")(FakeRequest())
       contentAsString(result) mustEqual TESTSTRING
     }
 
@@ -43,7 +43,7 @@ class ApplicationControllerSpec extends Specification with GithubTest {
 
   "In the archive route, the controller" should {
       "get a response header of application/octet-stream for zipfiles" in {
-        val result = Application.getRepo(USERNAME, "zip")
+        val result = Application.getRepo(USERNAME, "zip")(FakeRequest())
         contentType(result) must beSome("application/octet-stream")
       }
   }

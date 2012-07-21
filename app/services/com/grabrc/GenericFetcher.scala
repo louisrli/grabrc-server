@@ -62,9 +62,9 @@ class GenericFetcher {
    * @param compressionType
    * @return A Java URLConnection object
    */
-  def fetchRepo(username : String, compressionType : String) : Option[URLConnection]  = {
+  def fetchRepo(username : String, compressionType : String) : Option[String]  = {
     def createRepoUrl(username : String, compressionType : String) = {
-      val URLPREFIX = "https://nodeload.github.com"
+      val URLPREFIX = "http://nodeload.github.com"
       val zipOrTargz = compressionType match {
         case "zip" => "zipball"
         case "targz" => "tarball"
@@ -73,7 +73,10 @@ class GenericFetcher {
     }
 
     try {
-      Some(new URL(createRepoUrl(username, compressionType)).openConnection)
+      // Check that the connection works, the nreturn the URL
+      val urlString = createRepoUrl(username, compressionType)
+      new URL(urlString).openStream.close
+      Some(urlString)
     }
     catch { case e : Exception => None }
 
