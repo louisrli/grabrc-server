@@ -63,13 +63,14 @@ class GenericFetcher {
    * @return A Java URLConnection object
    */
   def fetchRepo(username : String, compressionType : String) : Option[String]  = {
+    //https://github.com/louisrli/grabrc-repo/archive/master.tar.gz
     def createRepoUrl(username : String, compressionType : String) = {
-      val URLPREFIX = "http://nodeload.github.com"
+      val URLPREFIX = "https://github.com"
       val zipOrTargz = compressionType match {
-        case "zip" => "zipball"
-        case "targz" => "tarball"
+        case "zip" => ".zip"
+        case "targz" => ".tar.gz"
       }
-      "%s/%s/%s/%s/master" format (URLPREFIX, username, REPONAME, zipOrTargz)
+      "%s/%s/%s/archive/master%s" format (URLPREFIX, username, REPONAME, zipOrTargz)
     }
 
     try {
